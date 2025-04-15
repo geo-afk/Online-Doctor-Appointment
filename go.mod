@@ -2,6 +2,8 @@ module github.com/geo-afk/Online-Doctor-Appointment
 
 go 1.24.2
 
+replace github.com/geo-afk/Online-Doctor-Appointment => ./
+
 require (
 	github.com/arsmn/fiber-swagger/v2 v2.31.1
 	github.com/gofiber/fiber/v2 v2.52.6

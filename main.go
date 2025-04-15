@@ -12,7 +12,11 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/joho/godotenv"
 
-	"github.com/geo-afk/Online-Doctor-Appointment/auth/db"
+	db "github.com/geo-afk/Online-Doctor-Appointment/database"
+)
+
+var (
+	query *db.Queries
 )
 
 func init() {
@@ -42,7 +46,8 @@ func databaseInit() {
 	}
 	defer conn.Close(ctx)
 
-	queries := db.New(conn)
+	query = db.New(conn)
+
 }
 
 func main() {
