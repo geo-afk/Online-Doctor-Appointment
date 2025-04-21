@@ -1,0 +1,31 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "This is a doctors appointment project to do booking, consultation, etc",
+        "title": "Doc-Appointment",
+        "contact": {},
+        "license": {
+            "name": "MIT",
+            "url": "https://opensource.org/licenses/MIT"
+        },
+        "version": "1.0.0"
+    },
+    "host": "localhost:3400",
+    "basePath": "/api/v1",
+    "paths": {
+        "/doctor": {
+            "get": {
+                "summary": "Main router for doctor",
+                "operationId": "Doctor Operations",
+                "responses": {}
+            }
+        },
+        "/patient": {
+            "get": {
+                "summary": "Main router for patient",
+                "operationId": "Patient Operations",
+                "responses": {}
+            }
+        }
+    }
+}

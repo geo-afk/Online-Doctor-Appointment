@@ -1,0 +1,28 @@
+
+version: "3.8"
+services:
+  psql_bp:
+    image: postgres:latest
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${BLUEPRINT_DB_DATABASE}
+      POSTGRES_USER: ${BLUEPRINT_DB_USERNAME}
+      POSTGRES_PASSWORD: ${BLUEPRINT_DB_PASSWORD}
+    ports:
+      - "${BLUEPRINT_DB_PORT}:5432"
+    volumes:
+      - psql_volume_bp:/var/lib/postgresql/data
+
+  web:
+    build:
+      context: .
+      # Correct the path to your Dockerfile
+      dockerfile: Dockerfile
+    ports:
+      - 8080:3000
+    # Important to bind/mount your codebase dir to /app dir for live reload
+    volumes:
+      - ./:/app
+
+volumes:
+  psql_volume_bp:
