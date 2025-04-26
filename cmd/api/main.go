@@ -10,7 +10,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/geo-afk/Online-Doctor-Appointment/internal/server"
+	"github.com/geo-afk/Online-Doctor-Appointment/app/server"
 	_ "github.com/joho/godotenv/autoload"
 )
 
@@ -38,19 +38,19 @@ func gracefulShutdown(fiberServer *server.FiberServer, done chan bool) {
 	done <- true
 }
 
-// @title Doc-Appointment
-// @version 1.0.0
-// @description This is a doctors appointment project to do booking, consultation, etc
+//	@title			CD-Appointment
+//	@version		1.0.0
+//	@description	This is a client-doctor/s appointment project to do booking, consultation, etc
 
 // contact.name Geovanni Stewart
 // contact.url github.com/geo-afk/Online-Doctor-Appointment
 // contact.email geo.a.atewart21@gmail.com
 
-// @license.name MIT
-// @license.url github.com/geo-afk/Online-Doctor-Appointment/blob/main/LICENSE
+//	@license.name	MIT
+//	@license.url	github.com/geo-afk/Online-Doctor-Appointment/blob/main/LICENSE
 
-// @host localhost:3400
-// @BasePath /api/v1
+// @host		localhost:3400
+// @BasePath
 func main() {
 
 	s := server.New()

@@ -46,4 +46,22 @@ watch:
 		Write-Output 'Watching...'; \
 	}"
 
+
+swag:
+	swag init -g cmd/api/main.go
+
+
+# APP_NAME = apiserver
+# BUILD_DIR = $(PWD)/build
+# MIGRATIONS_FOLDER = $(PWD)/platform/migrations
+# DATABASE_URL = postgres://postgres:password@localhost/postgres?sslmode=disable
+
+
+# migrate.up:
+# 	migrate -path $(MIGRATIONS_FOLDER) -database "$(DATABASE_URL)" up
+
+# migrate.down:
+# 	migrate -path $(MIGRATIONS_FOLDER) -database "$(DATABASE_URL)" down
+
+
 .PHONY: all build run test clean watch docker-run docker-down itest

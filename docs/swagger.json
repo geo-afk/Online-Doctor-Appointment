@@ -1,249 +1,39 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "This is an auto-generated API Docs.",
-        "title": "API",
-        "termsOfService": "http://swagger.io/terms/",
-        "contact": {
-            "name": "API Support",
-            "email": "your@mail.com"
-        },
+        "description": "This is a client-doctor/s appointment project to do booking, consultation, etc",
+        "title": "CD-Appointment",
+        "contact": {},
         "license": {
-            "name": "Apache 2.0",
-            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+            "name": "MIT",
+            "url": "github.com/geo-afk/Online-Doctor-Appointment/blob/main/LICENSE"
         },
-        "version": "1.0"
+        "version": "1.0.0"
     },
-    "basePath": "/api",
+    "host": "localhost:3400",
     "paths": {
-        "/v1/book": {
-            "put": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Update book.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Book"
-                ],
-                "summary": "update book",
-                "parameters": [
-                    {
-                        "description": "Book ID",
-                        "name": "id",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "Title",
-                        "name": "title",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "Author",
-                        "name": "author",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "Book status",
-                        "name": "book_status",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    },
-                    {
-                        "description": "Book attributes",
-                        "name": "book_attrs",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.BookAttrs"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "ok",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Create a new book.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Book"
-                ],
-                "summary": "create a new book",
-                "parameters": [
-                    {
-                        "description": "Title",
-                        "name": "title",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "Author",
-                        "name": "author",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "Book attributes",
-                        "name": "book_attrs",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.BookAttrs"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.Book"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Delete book by given ID.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Book"
-                ],
-                "summary": "delete book by given ID",
-                "parameters": [
-                    {
-                        "description": "Book ID",
-                        "name": "id",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "ok",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/book/{id}": {
+        "/health": {
             "get": {
-                "description": "Get book by given ID.",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
-                "tags": [
-                    "Book"
-                ],
-                "summary": "get book by given ID",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Book ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
+                "summary": "get the Database health",
+                "operationId": "health",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.Book"
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/books": {
-            "get": {
-                "description": "Get all exists books.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Books"
-                ],
-                "summary": "get all exists books",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.Book"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
                             }
                         }
                     }
                 }
             }
         },
-        "/v1/token/new": {
-            "get": {
-                "description": "Create a new access token.",
+        "/login": {
+            "post": {
                 "consumes": [
                     "application/json"
                 ],
@@ -251,12 +41,75 @@
                     "application/json"
                 ],
                 "tags": [
-                    "Token"
+                    "Login"
                 ],
-                "summary": "create a new access token",
+                "summary": "Login Panel for both Doctor and Patient",
+                "parameters": [
+                    {
+                        "description": "Login credentials",
+                        "name": "login",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Auth"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "ok",
+                        "description": "Login successful, returns JWT token",
+                        "schema": {
+                            "$ref": "#/definitions/server.tokenResponse"
+                        }
+                    },
+                    "204": {
+                        "description": "Invalid credentials for user login",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/register": {
+            "post": {
+                "description": "Registers a new user, handling both doctor and patient profiles.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "text/plain"
+                ],
+                "tags": [
+                    "Register"
+                ],
+                "summary": "Register a new user (Doctor or Patient)",
+                "parameters": [
+                    {
+                        "description": "User Details",
+                        "name": "Register",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully registered",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "type": "string"
                         }
@@ -266,67 +119,77 @@
         }
     },
     "definitions": {
-        "models.Book": {
+        "models.Auth": {
             "type": "object",
-            "required": [
-                "author",
-                "book_attrs",
-                "book_status",
-                "id",
-                "title",
-                "user_id"
-            ],
             "properties": {
-                "author": {
-                    "type": "string",
-                    "maxLength": 255
-                },
-                "book_attrs": {
-                    "$ref": "#/definitions/models.BookAttrs"
-                },
-                "book_status": {
-                    "type": "integer"
-                },
-                "created_at": {
-                    "type": "string"
-                },
                 "id": {
                     "type": "string"
                 },
-                "title": {
-                    "type": "string",
-                    "maxLength": 255
-                },
-                "updated_at": {
+                "password": {
                     "type": "string"
                 },
-                "user_id": {
+                "user_name": {
                     "type": "string"
                 }
             }
         },
-        "models.BookAttrs": {
+        "models.ContactDetail": {
             "type": "object",
             "properties": {
-                "description": {
+                "email": {
                     "type": "string"
                 },
-                "picture": {
+                "id": {
+                    "type": "integer"
+                },
+                "primary_contact": {
                     "type": "string"
                 },
-                "rating": {
-                    "type": "integer",
-                    "maximum": 10,
-                    "minimum": 1
+                "secondary_number": {
+                    "type": "string"
                 }
             }
-        }
-    },
-    "securityDefinitions": {
-        "ApiKeyAuth": {
-            "type": "apiKey",
-            "name": "Authorization",
-            "in": "header"
+        },
+        "models.User": {
+            "type": "object",
+            "properties": {
+                "auth": {
+                    "$ref": "#/definitions/models.Auth"
+                },
+                "contact": {
+                    "$ref": "#/definitions/models.ContactDetail"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "emergency_contact": {
+                    "$ref": "#/definitions/models.ContactDetail"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "location": {
+                    "type": "string"
+                },
+                "user_role": {
+                    "type": "string"
+                }
+            }
+        },
+        "server.tokenResponse": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string"
+                },
+                "user_role": {}
+            }
         }
     }
 }

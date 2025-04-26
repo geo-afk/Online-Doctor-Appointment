@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/geo-afk/Online-Doctor-Appointment/internal/postgres"
+	"github.com/geo-afk/Online-Doctor-Appointment/app/postgres"
 	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/joho/godotenv/autoload"
 )
@@ -60,7 +60,6 @@ func (s *service) Health() map[string]string {
 		stats["acquired"] = strconv.Itoa(int(poolStats.AcquiredConns()))
 		stats["idle"] = strconv.Itoa(int(poolStats.IdleConns()))
 		stats["total"] = strconv.Itoa(int(poolStats.TotalConns()))
-		return stats
 	} else {
 		stats["status"] = "unknown"
 		stats["error"] = "no database connection available"

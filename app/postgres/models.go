@@ -223,6 +223,15 @@ type Payment struct {
 	Amount    float32
 }
 
+type Session struct {
+	UserID       int32
+	UserRole     URole
+	RefreshToken string
+	IsRevoked    bool
+	CreatedAt    pgtype.Timestamp
+	ExpiredAt    pgtype.Timestamp
+}
+
 type Surgery struct {
 	ID          int32
 	Description pgtype.Text

@@ -1,9 +1,10 @@
 -- ENUM TYPES
 CREATE TYPE AP_STATUS AS ENUM ('None', 'Booked', 'Resolved', 'Cancelled');
+
 CREATE TYPE MEDICAL_STATUS AS ENUM ('Ongoing', 'Recovered', 'None');
+
 CREATE TYPE U_ROLE AS ENUM ('patient', 'doctor');
 
--- BASE TABLES
 CREATE TABLE IF NOT EXISTS contact_details (
     id SERIAL PRIMARY KEY,
     primary_number TEXT,
@@ -18,6 +19,18 @@ CREATE TABLE IF NOT EXISTS address (
     state VARCHAR(200),
     country VARCHAR(200),
     zip VARCHAR(20) -- To support ZIPs with dashes or leading 0s
+);
+
+CREATE TABLE IF NOT EXISTS SESSION (
+    user_id INTEGER NOT NULL,
+    user_role U_ROLE NOT NULL,
+    refresh_token TEXT NOT NULL,
+    IS_REVOKED BOOLEAN NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    expired_at TIMESTAMP,
+    CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES "user" (
+        id
+    ) ON DELETE CASCADE
 );
 
 -- MAIN USER TABLE
