@@ -4,7 +4,7 @@
 all: build test
 
 build:
-	@echo "Building..."
+	@@go build cmd/api/main.go
 	
 	
 	@go build -o main.exe cmd/api/main.go
