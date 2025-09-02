@@ -19,21 +19,71 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/health": {
-            "get": {
+        "/api/v1/book_appointment": {
+            "post": {
+                "security": [
+                    {
+                        "bearerToken": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
                 "produces": [
                     "application/json"
                 ],
-                "summary": "get the Database health",
-                "operationId": "health",
+                "tags": [
+                    "BookAppointment"
+                ],
+                "summary": "Appointment ;patients come and book appointments",
+                "parameters": [
+                    {
+                        "description": "Book Appointment",
+                        "name": "appointment",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Appointment"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Login successfully booked appointment",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    "204": {
+                        "description": "Unable to book appointment",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/health": {
+            "get": {
+                "description": "Get the Database health",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Health"
+                ],
+                "summary": "Get the Database health",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "type": "map"
                         }
                     }
                 }
@@ -66,7 +116,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Login successful, returns JWT token",
                         "schema": {
-                            "$ref": "#/definitions/server.tokenResponse"
+                            "$ref": "#/definitions/server.UserLoginReq"
                         }
                     },
                     "204": {
@@ -77,6 +127,47 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/logout": {
+            "delete": {
+                "description": "Logs out the user that is currently logged in",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Logout"
+                ],
+                "summary": "When a logged in user want to logout",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Path Variable",
+                        "name": "logout",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request: Missing Id",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error: when deleting session",
                         "schema": {
                             "type": "string"
                         }
@@ -123,9 +214,122 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/renew/token": {
+            "post": {
+                "description": "Logged in users can use to get a new session token",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "RenewToken"
+                ],
+                "summary": "Renew user token",
+                "parameters": [
+                    {
+                        "description": "access token request",
+                        "name": "RenewToken",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/server.RenewAccessTokenReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/server.RenewAccessTokenRes"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Un Authorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error: when deleting session",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/revoke/token": {
+            "delete": {
+                "description": "Logs out the user that is currently logged in",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "RevokeSession"
+                ],
+                "summary": "When a logged in user want to revoke their session",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Path Variable",
+                        "name": "RevokeSession",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request: Missing Id",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error: when deleting session",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "models.Appointment": {
+            "type": "object",
+            "properties": {
+                "appointment_status": {
+                    "type": "string"
+                },
+                "booked": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "models.Auth": {
             "type": "object",
             "properties": {
@@ -189,14 +393,54 @@ const docTemplate = `{
                 }
             }
         },
-        "server.tokenResponse": {
+        "server.RenewAccessTokenReq": {
             "type": "object",
             "properties": {
-                "token": {
+                "refresh_token": {
+                    "type": "string"
+                }
+            }
+        },
+        "server.RenewAccessTokenRes": {
+            "type": "object",
+            "properties": {
+                "access_token_expires_at": {
                     "type": "string"
                 },
-                "user_role": {}
+                "refresh_token": {
+                    "type": "string"
+                }
             }
+        },
+        "server.UserLoginReq": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "type": "string"
+                },
+                "access_token_expires_at": {
+                    "type": "string"
+                },
+                "refresh_token": {
+                    "type": "string"
+                },
+                "refresh_token_expires_at": {
+                    "type": "string"
+                },
+                "session_id": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "bearerToken": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }`

@@ -11,6 +11,54 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const bookAppointment = `-- name: BookAppointment :exec
+INSERT INTO appointment ( 
+    user_id,
+    reason, 
+    booked_at, 
+    appointment_status, 
+    created_at
+    )
+VALUES ($1,$2,$3,$4,$5)
+`
+
+type BookAppointmentParams struct {
+	UserID            int32
+	Reason            string
+	BookedAt          pgtype.Timestamp
+	AppointmentStatus NullApStatus
+	CreatedAt         pgtype.Timestamp
+}
+
+func (q *Queries) BookAppointment(ctx context.Context, arg BookAppointmentParams) error {
+	_, err := q.db.Exec(ctx, bookAppointment,
+		arg.UserID,
+		arg.Reason,
+		arg.BookedAt,
+		arg.AppointmentStatus,
+		arg.CreatedAt,
+	)
+	return err
+}
+
+const changePassword = `-- name: ChangePassword :exec
+UPDATE auth
+SET password = $1
+FROM "user" AS u
+WHERE auth.user_id = u.id
+    and u.id=$2
+`
+
+type ChangePasswordParams struct {
+	Password string
+	ID       int32
+}
+
+func (q *Queries) ChangePassword(ctx context.Context, arg ChangePasswordParams) error {
+	_, err := q.db.Exec(ctx, changePassword, arg.Password, arg.ID)
+	return err
+}
+
 const createAddress = `-- name: CreateAddress :exec
 INSERT INTO
     address (street, city, state, country, zip)
@@ -58,6 +106,33 @@ func (q *Queries) CreateContact(ctx context.Context, arg CreateContactParams) (i
 	return id, err
 }
 
+const createRequest = `-- name: CreateRequest :exec
+INSERT INTO requests ( 
+   request_type,
+   token,
+   expires_at,
+   user_email
+   )
+VALUES ($1,$2,$3, $4)
+`
+
+type CreateRequestParams struct {
+	RequestType string
+	Token       string
+	ExpiresAt   pgtype.Timestamp
+	UserEmail   string
+}
+
+func (q *Queries) CreateRequest(ctx context.Context, arg CreateRequestParams) error {
+	_, err := q.db.Exec(ctx, createRequest,
+		arg.RequestType,
+		arg.Token,
+		arg.ExpiresAt,
+		arg.UserEmail,
+	)
+	return err
+}
+
 const createUserAuth = `-- name: CreateUserAuth :exec
 INSERT into
     auth(user_id, user_name, password)
@@ -76,37 +151,111 @@ func (q *Queries) CreateUserAuth(ctx context.Context, arg CreateUserAuthParams) 
 	return err
 }
 
+const deleteSession = `-- name: DeleteSession :exec
+DELETE FROM "session"
+WHERE id=$1
+`
+
+func (q *Queries) DeleteSession(ctx context.Context, id string) error {
+	_, err := q.db.Exec(ctx, deleteSession, id)
+	return err
+}
+
+const forgetPassword = `-- name: ForgetPassword :exec
+UPDATE auth
+SET password = $1
+FROM "user" AS u
+JOIN contact_details c ON u.contact_id = c.id
+LEFT JOIN requests r ON c.email = r.user_email
+WHERE auth.user_id = u.id
+  AND r.token = $2
+`
+
+type ForgetPasswordParams struct {
+	Password string
+	Token    string
+}
+
+func (q *Queries) ForgetPassword(ctx context.Context, arg ForgetPasswordParams) error {
+	_, err := q.db.Exec(ctx, forgetPassword, arg.Password, arg.Token)
+	return err
+}
+
+const getRequest = `-- name: GetRequest :one
+SELECT 
+    token, expires_at
+FROM 
+    requests
+WHERE 
+    token=$1
+`
+
+type GetRequestRow struct {
+	Token     string
+	ExpiresAt pgtype.Timestamp
+}
+
+func (q *Queries) GetRequest(ctx context.Context, token string) (GetRequestRow, error) {
+	row := q.db.QueryRow(ctx, getRequest, token)
+	var i GetRequestRow
+	err := row.Scan(&i.Token, &i.ExpiresAt)
+	return i, err
+}
+
+const getSession = `-- name: GetSession :one
+SELECT id, user_id, user_role, refresh_token, is_revoked, created_at, expires_at from "session"
+where id=$1
+`
+
+func (q *Queries) GetSession(ctx context.Context, id string) (Session, error) {
+	row := q.db.QueryRow(ctx, getSession, id)
+	var i Session
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.UserRole,
+		&i.RefreshToken,
+		&i.IsRevoked,
+		&i.CreatedAt,
+		&i.ExpiresAt,
+	)
+	return i, err
+}
+
 const insertSession = `-- name: InsertSession :exec
 INSERT INTO 
     "session" (
+        id,
         user_id, 
         user_role, 
         refresh_token, 
         is_revoked, 
         created_at, 
-        expired_at
+        expires_at
     )
 VALUES
-    ($1, $2, $3, $4, $5, $6)
+    ($1, $2, $3, $4, $5, $6, $7)
 `
 
 type InsertSessionParams struct {
+	ID           string
 	UserID       int32
 	UserRole     URole
 	RefreshToken string
 	IsRevoked    bool
 	CreatedAt    pgtype.Timestamp
-	ExpiredAt    pgtype.Timestamp
+	ExpiresAt    pgtype.Timestamp
 }
 
 func (q *Queries) InsertSession(ctx context.Context, arg InsertSessionParams) error {
 	_, err := q.db.Exec(ctx, insertSession,
+		arg.ID,
 		arg.UserID,
 		arg.UserRole,
 		arg.RefreshToken,
 		arg.IsRevoked,
 		arg.CreatedAt,
-		arg.ExpiredAt,
+		arg.ExpiresAt,
 	)
 	return err
 }
@@ -116,17 +265,17 @@ SELECT EXISTS (
     select 1
     from public.auth a
     join public.user u on a.user_id = u.id
-    where u.user_role=$1 AND a.user_name=$2
+    where u.user_role=$1 AND a.user_id=$2
 ) AS exists
 `
 
 type IsUserLoggedInParams struct {
 	UserRole URole
-	UserName string
+	UserID   int32
 }
 
 func (q *Queries) IsUserLoggedIn(ctx context.Context, arg IsUserLoggedInParams) (bool, error) {
-	row := q.db.QueryRow(ctx, isUserLoggedIn, arg.UserRole, arg.UserName)
+	row := q.db.QueryRow(ctx, isUserLoggedIn, arg.UserRole, arg.UserID)
 	var exists bool
 	err := row.Scan(&exists)
 	return exists, err
@@ -172,8 +321,50 @@ func (q *Queries) RegisterUser(ctx context.Context, arg RegisterUserParams) (int
 	return id, err
 }
 
+const removeRequest = `-- name: RemoveRequest :exec
+DELETE FROM 
+    requests
+WHERE 
+    token=$1
+`
+
+func (q *Queries) RemoveRequest(ctx context.Context, token string) error {
+	_, err := q.db.Exec(ctx, removeRequest, token)
+	return err
+}
+
+const revokeSession = `-- name: RevokeSession :exec
+UPDATE "session" SET is_revoked=1
+WHERE id=$1
+`
+
+func (q *Queries) RevokeSession(ctx context.Context, id string) error {
+	_, err := q.db.Exec(ctx, revokeSession, id)
+	return err
+}
+
+const userByEmail = `-- name: UserByEmail :one
+SELECT EXISTS (
+    SELECT
+        c.email
+    FROM
+        "user" AS u
+        JOIN auth AS a ON a.user_id = u.id
+        LEFT JOIN contact_details c ON u.contact_id=c.id
+    WHERE c.email = $1
+) AS exists
+`
+
+func (q *Queries) UserByEmail(ctx context.Context, email pgtype.Text) (bool, error) {
+	row := q.db.QueryRow(ctx, userByEmail, email)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
 const userLogin = `-- name: UserLogin :one
 SELECT
+    u.id,
     u.user_role,
     a.password
 FROM
@@ -184,6 +375,7 @@ WHERE
 `
 
 type UserLoginRow struct {
+	ID       int32
 	UserRole URole
 	Password string
 }
@@ -191,6 +383,6 @@ type UserLoginRow struct {
 func (q *Queries) UserLogin(ctx context.Context, userName string) (UserLoginRow, error) {
 	row := q.db.QueryRow(ctx, userLogin, userName)
 	var i UserLoginRow
-	err := row.Scan(&i.UserRole, &i.Password)
+	err := row.Scan(&i.ID, &i.UserRole, &i.Password)
 	return i, err
 }

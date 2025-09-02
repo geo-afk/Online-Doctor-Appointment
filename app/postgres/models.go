@@ -160,7 +160,7 @@ type Appointment struct {
 	ID                int32
 	UserID            int32
 	Reason            string
-	Booked            pgtype.Timestamp
+	BookedAt          pgtype.Timestamp
 	AppointmentStatus NullApStatus
 	CreatedAt         pgtype.Timestamp
 }
@@ -223,13 +223,22 @@ type Payment struct {
 	Amount    float32
 }
 
+type Request struct {
+	ID          pgtype.Int4
+	RequestType string
+	Token       string
+	UserEmail   string
+	ExpiresAt   pgtype.Timestamp
+}
+
 type Session struct {
+	ID           string
 	UserID       int32
 	UserRole     URole
 	RefreshToken string
 	IsRevoked    bool
 	CreatedAt    pgtype.Timestamp
-	ExpiredAt    pgtype.Timestamp
+	ExpiresAt    pgtype.Timestamp
 }
 
 type Surgery struct {

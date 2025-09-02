@@ -46,6 +46,10 @@ func gracefulShutdown(fiberServer *server.FiberServer, done chan bool) {
 // contact.url github.com/geo-afk/Online-Doctor-Appointment
 // contact.email geo.a.atewart21@gmail.com
 
+// @securityDefinitions.apiKey bearerToken
+// @in header
+// @name Authorization
+
 //	@license.name	MIT
 //	@license.url	github.com/geo-afk/Online-Doctor-Appointment/blob/main/LICENSE
 

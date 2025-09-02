@@ -1,4 +1,19 @@
 definitions:
+  models.Appointment:
+    properties:
+      appointment_status:
+        type: string
+      booked:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      reason:
+        type: string
+      user_id:
+        type: integer
+    type: object
   models.Auth:
     properties:
       id:
@@ -40,11 +55,32 @@ definitions:
       user_role:
         type: string
     type: object
-  server.tokenResponse:
+  server.RenewAccessTokenReq:
     properties:
-      token:
+      refresh_token:
         type: string
-      user_role: {}
+    type: object
+  server.RenewAccessTokenRes:
+    properties:
+      access_token_expires_at:
+        type: string
+      refresh_token:
+        type: string
+    type: object
+  server.UserLoginReq:
+    properties:
+      access_token:
+        type: string
+      access_token_expires_at:
+        type: string
+      refresh_token:
+        type: string
+      refresh_token_expires_at:
+        type: string
+      session_id:
+        type: string
+      user_id:
+        type: integer
     type: object
 host: localhost:3400
 info:
@@ -57,19 +93,50 @@ info:
   title: CD-Appointment
   version: 1.0.0
 paths:
+  /api/v1/book_appointment:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Book Appointment
+        in: body
+        name: appointment
+        required: true
+        schema:
+          $ref: '#/definitions/models.Appointment'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Login successfully booked appointment
+          schema:
+            type: boolean
+        "204":
+          description: Unable to book appointment
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      security:
+      - bearerToken: []
+      summary: Appointment ;patients come and book appointments
+      tags:
+      - BookAppointment
   /health:
     get:
-      operationId: health
+      description: Get the Database health
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            additionalProperties:
-              type: string
-            type: object
-      summary: get the Database health
+            type: map
+      summary: Get the Database health
+      tags:
+      - Health
   /login:
     post:
       consumes:
@@ -87,7 +154,7 @@ paths:
         "200":
           description: Login successful, returns JWT token
           schema:
-            $ref: '#/definitions/server.tokenResponse'
+            $ref: '#/definitions/server.UserLoginReq'
         "204":
           description: Invalid credentials for user login
           schema:
@@ -99,6 +166,33 @@ paths:
       summary: Login Panel for both Doctor and Patient
       tags:
       - Login
+  /logout:
+    delete:
+      description: Logs out the user that is currently logged in
+      parameters:
+      - description: Path Variable
+        in: path
+        name: logout
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
+        "400":
+          description: 'Bad Request: Missing Id'
+          schema:
+            type: string
+        "500":
+          description: 'Internal Server Error: when deleting session'
+          schema:
+            type: string
+      summary: When a logged in user want to logout
+      tags:
+      - Logout
   /register:
     post:
       consumes:
@@ -125,4 +219,68 @@ paths:
       summary: Register a new user (Doctor or Patient)
       tags:
       - Register
+  /renew/token:
+    post:
+      description: Logged in users can use to get a new session token
+      parameters:
+      - description: access token request
+        in: body
+        name: RenewToken
+        required: true
+        schema:
+          $ref: '#/definitions/server.RenewAccessTokenReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/server.RenewAccessTokenRes'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Un Authorized
+          schema:
+            type: string
+        "500":
+          description: 'Internal Server Error: when deleting session'
+          schema:
+            type: string
+      summary: Renew user token
+      tags:
+      - RenewToken
+  /revoke/token:
+    delete:
+      description: Logs out the user that is currently logged in
+      parameters:
+      - description: Path Variable
+        in: path
+        name: RevokeSession
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
+        "400":
+          description: 'Bad Request: Missing Id'
+          schema:
+            type: string
+        "500":
+          description: 'Internal Server Error: when deleting session'
+          schema:
+            type: string
+      summary: When a logged in user want to revoke their session
+      tags:
+      - RevokeSession
+securityDefinitions:
+  bearerToken:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

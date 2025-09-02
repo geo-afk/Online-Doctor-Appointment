@@ -16,18 +16,19 @@ CREATE TABLE IF NOT EXISTS address (
     id SERIAL PRIMARY KEY,
     street VARCHAR(250),
     city VARCHAR(200),
-    state VARCHAR(200),
+    state VARCHAR(200), 
     country VARCHAR(200),
     zip VARCHAR(20) -- To support ZIPs with dashes or leading 0s
 );
 
-CREATE TABLE IF NOT EXISTS SESSION (
+CREATE TABLE IF NOT EXISTS "session" (
+    id VARCHAR(255) NOT NULL,
     user_id INTEGER NOT NULL,
     user_role U_ROLE NOT NULL,
     refresh_token TEXT NOT NULL,
-    IS_REVOKED BOOLEAN NOT NULL,
+    is_revoked BOOLEAN NOT NULL, 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    expired_at TIMESTAMP,
+    expires_at TIMESTAMP,
     CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES "user" (
         id
     ) ON DELETE CASCADE
@@ -78,12 +79,12 @@ CREATE TABLE IF NOT EXISTS patient (
     CONSTRAINT fk_medical_history_id FOREIGN KEY (medical_history_id) REFERENCES medical_history(id)
 );
 
--- APPOINTMENT TABLE
+-- APPOINTMENT TABLE 
 CREATE TABLE IF NOT EXISTS appointment (
     id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL,
     reason TEXT NOT NULL,
-    booked TIMESTAMP NOT NULL,
+    booked_at TIMESTAMP NOT NULL,
     appointment_status AP_STATUS,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_user_appointment FOREIGN KEY (user_id) REFERENCES "user"(id)
@@ -136,4 +137,14 @@ CREATE TABLE IF NOT EXISTS medical_history (
     CONSTRAINT fk_mh_medication FOREIGN KEY (medication) REFERENCES medication_history(id),
     CONSTRAINT fk_mh_allergies FOREIGN KEY (allergies) REFERENCES allergy(id),
     CONSTRAINT fk_mh_surgeries FOREIGN KEY (surgeries) REFERENCES surgery(id)
+);
+
+
+
+CREATE TABLE IF NOT EXISTS requests (
+    id SERIAL,
+    request_type VARCHAR(50) NOT NULL,
+    token TEXT NOT NULL, 
+    user_email VARCHAR(225) NOT NULL, 
+    expires_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

@@ -1,6 +1,8 @@
 package server
 
 import (
+	"crypto/rand"
+	"encoding/base64"
 	"log"
 
 	"github.com/geo-afk/Online-Doctor-Appointment/app/auth"
@@ -16,9 +18,24 @@ func ParseAndRegisterUser(ctx *fiber.Ctx) models.User {
 
 	log.Println(user)
 
-	password := auth.GeneratePassword(user.Auth.Password)
+	password := GeneratePassword(user.Auth.Password)
 	user.Auth.Password = password
 
 	return user
 
+}
+
+
+func GeneratePassword(password string) string{
+
+	return auth.GeneratePassword(password)
+}
+
+func GenerateSecureToken(length int) (string, error) {
+	b := make([]byte, length)
+	_, err := rand.Read(b)
+	if err != nil {
+		return "", err
+	}
+	return base64.URLEncoding.EncodeToString(b), nil
 }

@@ -1,6 +1,8 @@
 package server
 
 import (
+	"context"
+
 	jwt "github.com/geo-afk/Online-Doctor-Appointment/app/auth"
 	db "github.com/geo-afk/Online-Doctor-Appointment/app/db"
 	"github.com/gofiber/fiber/v2"
@@ -11,6 +13,7 @@ type FiberServer struct {
 
 	db    db.Service
 	token *jwt.JwtSecret
+	ctx   context.Context
 }
 
 func New() *FiberServer {
@@ -22,6 +25,7 @@ func New() *FiberServer {
 
 		db:    db.New(),
 		token: jwt.NewJwt(),
+		ctx:   context.Background(),
 	}
 
 	return server

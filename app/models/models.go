@@ -53,15 +53,6 @@ type Doctor struct {
 // 	Surgeries     pgtype.Int4
 // }
 
-// type MedicationHistory struct {
-// 	ID          int32
-// 	Description string
-// 	Dosage      string
-// 	Frequency   pgtype.Int4
-// 	StartDate   pgtype.Timestamp
-// 	EndDate     pgtype.Timestamp
-// }
-
 type Patient struct {
 	ID               int32
 	AppointmentID    int
@@ -82,6 +73,15 @@ type Patient struct {
 // 	DateDone    pgtype.Timestamp
 // 	Hospital    string
 // }
+
+type Appointment struct {
+	ID                int32     `json:"id,omitempty"`
+	UserID            int32     `json:"user_id"`
+	Reason            string    `json:"reason"`
+	BookedAt          time.Time `json:"booked"`
+	AppointmentStatus string    `json:"appointment_status"`
+	CreatedAt         time.Time `json:"created_at,omitempty"`
+}
 
 type ContactDetail struct {
 	Id              int32  `json:"id,omitempty"`
@@ -105,4 +105,14 @@ type User struct {
 	EmergencyContact *ContactDetail `json:"emergency_contact,omitempty"`
 	CreatedAt        time.Time      `json:"created_at"`
 	Auth             `json:"auth"`
+}
+
+type Session struct {
+	Id           string    `json:"id"`
+	UserId       int32     `json:"user_id,omitempty"`
+	UserRole     string    `json:"user_role"`
+	RefreshToken string    `json:"refresh_token"`
+	IsRevoked    bool      `json:"is_revoked"`
+	CreatedAt    time.Time `json:"created_at"`
+	ExpiresAt    time.Time `json:"expires_at"`
 }

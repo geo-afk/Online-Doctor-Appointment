@@ -23,8 +23,13 @@ func ToPgInt(value int32) pgtype.Int4 {
 }
 func ToPgTime(value time.Time) pgtype.Timestamp {
 
+	if value.IsZero() {
+		value = time.Now()
+	}
 	var time pgtype.Timestamp
 	time.Time = value
 	time.Valid = true
 	return time
 }
+
+

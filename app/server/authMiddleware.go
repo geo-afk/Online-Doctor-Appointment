@@ -12,73 +12,67 @@ import (
 	"github.com/gofiber/fiber/v2/log"
 )
 
-func (s *FiberServer) AuthMiddleware() fiber.Handler {
+func unAuthError(ctx *fiber.Ctx, err error) error {
 
-	return func(ctx *fiber.Ctx) error {
+	var errMessage = "unauthorized"
 
-		cookieToken := ctx.Cookies("jwt")
-		var err error
-		var cookieString string
-
-		if cookieToken != "" {
-			log.Warn("Found cookie, consuming it..!")
-			cookieString = cookieToken
-		} else {
-			log.Warn("Found Not Found, trying Auth header")
-
-			authHeader := ctx.Cookies("Authorization")
-
-			cookieString, err = getAuthToken(authHeader)
-
-			if err != nil {
-				return unAuthError(ctx)
-			}
-
-		}
-		claims, err := auth.NewJwt().VerifyToken(cookieString)
-
-		expired := time.Now().Before(claims.ExpiresAt.Time)
-		if err != nil || expired {
-			ctx.ClearCookie()
-			return unAuthError(ctx)
-		}
-
-		param := models.GetIsUserLoggedInParams(claims.UserName, claims.UserRole)
-		found, err := s.db.DB().IsUserLoggedIn(context.Background(), param)
-
-		if found {
-			ctx.Locals("user_name", claims.UserName)
-		} else {
-			ctx.ClearCookie()
-			return ctx.SendStatus(fiber.StatusNoContent)
-		}
-		return ctx.Next()
+	if err != nil {
+		errMessage = err.Error()
 	}
+	return ctx.Status(fiber.StatusUnauthorized).JSON(
+		fiber.Map{
+			"error": errMessage,
+		},
+	)
 }
 
 func getAuthToken(authHeader string) (string, error) {
+	err := errors.New("invalid token..!")
 
-	err := errors.New("unauthorized")
 	if authHeader == "" {
-
 		return "", err
-
 	}
 
 	tokenParts := strings.Split(authHeader, " ")
-
 	if len(tokenParts) != 2 || tokenParts[0] != "Bearer" {
-
 		return "", err
 	}
 
 	return tokenParts[1], nil
 }
 
-func unAuthError(ctx *fiber.Ctx) error {
+func (s *FiberServer) AuthMiddleware(c *fiber.Ctx) error {
 
-	return ctx.Status(fiber.StatusUnauthorized).JSON(
-		fiber.Map{
-			"error": "",
-		})
+	cookieToken := c.Cookies("jwt")
+
+	var err error
+	var tokenString string
+
+	if cookieToken == "1" {
+		log.Warn("Found cookie, consuming it..!")
+		tokenString = cookieToken
+	} else {
+		log.Warn("Cookie not found, trying Auth header...")
+
+		tokenString, err = getAuthToken(c.Get("Authorization"))
+		if err != nil {
+			return unAuthError(c, err)
+		}
+	}
+
+	claims, err := auth.NewJwt().VerifyToken(tokenString)
+	if err != nil || time.Now().After(claims.ExpiresAt.Time) {
+		c.ClearCookie()
+		return unAuthError(c, err)
+	}
+
+	param := models.GetIsUserLoggedInParams(claims.UserId, claims.UserRole)
+	found, err := s.db.DB().IsUserLoggedIn(context.Background(), param)
+	if err != nil || !found {
+		c.ClearCookie()
+		return unAuthError(c, err)
+	}
+
+	c.Locals("user_id", claims.UserId)
+	return c.Next()
 }
